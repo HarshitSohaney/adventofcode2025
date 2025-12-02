@@ -16,6 +16,7 @@ def process_file():
 
             for line in lines:
                 actions.append(Action(line[:1], int(line[1:])))
+
     except FileNotFoundError:
         print(f"Error: The file '{file_path}' was not found.")
     except Exception as e:
@@ -29,47 +30,63 @@ def solve():
     count = 0
 
     at_num = 50
-    max_num = 100
+    max_num = 99
     min_num = 0
 
     for action in actions:
         print(action.dir, action.num)
         val = action.num
         amnt = 0
-        if action.num >= max_num:
-            val = action.num % 100
-            amnt = abs(action.num // 100)
+
+        # are we going be looping?
+        if action.num > max_num:
+            # what's our actual value going to be without those loops
+            val = action.num % (max_num + 1)
+
+            # how many times did we loop around (100 clicks)?
+            amnt = abs(action.num // (max_num + 1))
+
+        were_we_at_zero = at_num == 0
 
         match action.dir:
             case 'R':
                 at_num += val
-                print("at:", at_num, " count:", count, " any loops:", amnt)
 
                 # we need to correct - we moved past 99
-                if at_num >= max_num:
-                    at_num = at_num - max_num
-                if amnt > 0:
-                    count += amnt
+                if at_num > max_num:
+                    at_num -= max_num + 1
+
+                    # if we did cross the threshold, we should add
+                    # we will account for full 100 click loops later
+                    if not were_we_at_zero and at_num != 0:
+                        count += 1
 
             case 'L':
                 at_num -= val
-                print("at:", at_num, " count:", count, " any loops:", amnt)
 
                 # we need to correct - we moved past 0
                 if at_num < min_num:
-                    at_num += max_num
-                if amnt > 0:
-                    count += amnt
+                    at_num += max_num + 1
 
-        print("FINAL AT NUM", at_num)
+                    # if we did cross the threshold, we should add
+                    # we will account for full 100 click loops later
+                    if not were_we_at_zero and at_num != 0:
+                        count += 1
 
+        # did we loop around?
+        if amnt > 0:
+            count += amnt
+
+        # what if we landed on a 0
         if at_num == 0:
             count += 1
 
-            if amnt > 0:
+            # Woops if we ended up at zero, we might have overcounted amnt 
+            # if we started at zero too
+            if were_we_at_zero:
                 count -= 1
-            print("^^ SAW A 0, ", count)
-        print("\n")
+
+        print(f" --- FINAL COUNT {count} --- ENDED UP AT {at_num} \n")
 
     print(count)
     
