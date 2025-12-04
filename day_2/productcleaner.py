@@ -11,20 +11,35 @@ class Range:
 def validate_pattern(number):
         strnum = str(number)
 
-        if len(strnum)%2 != 0:
+        # ex. 1, 2, 3
+        if len(strnum) == 1:
             return False
 
-        isInvalidProductID = False
-        l = 0
-        r = len(strnum)//2
+        # ex. 22222, 333, 444444
+        if len(set(strnum)) == 1:
+            return True
 
-        while r < len(strnum):
-            if strnum[l] != strnum[r]:
-                return False
-            l+=1
-            r+=1
-        
-        return True
+        divisible_list = [1]
+
+        for i in range(2, min(6, len(strnum))):
+            if len(strnum)%i == 0:
+                divisible_list.append(i)
+
+        # go through divisors and see if any work!!
+        for divisor in divisible_list:
+            l = 0
+            r = divisor
+
+            while r < len(strnum):
+                if strnum[l] != strnum[r]:
+                    break
+                l+=1
+                r+=1
+            
+            if r == len(strnum):
+                return True
+
+        return False
 
 def process_file():
     ranges = []
