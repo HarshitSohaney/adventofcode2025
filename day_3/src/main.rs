@@ -1,14 +1,15 @@
 use std::fs;
 use std::error::Error;
+use std::collections::HashSet;
 
 trait FindBestJoltage {
-    fn find_best_joltage(&self) -> i32;
-    fn do_loop(&self, sorted: &[Battery], after_pos: usize, ignore_pos: usize) -> (Battery, usize);
+    fn find_best_joltage(&self) -> i64;
+    fn biggest_number(&self, sorted_vec: &[Battery], length_of_num: usize, ignore_pos: &mut HashSet<usize>, number: i64, min_pos: usize) -> i64;
 }
 
 #[derive(Debug, Clone)]
 struct Battery {
-    joltage: i32,
+    joltage: i64,
     position: usize,
 }
 
@@ -18,39 +19,42 @@ struct Bank {
 }
 
 impl FindBestJoltage for Bank {
-    fn find_best_joltage(&self) -> i32 {
+    fn find_best_joltage(&self) -> i64 {
         let mut sorted_vec = self.batteries.clone();
-        let mut number: i32 = 0;
 
         sorted_vec.sort_by_key(|b| -b.joltage);
-        println!("SORTED VEC {:?}", sorted_vec);
-        let (first_battery, first_idx) = self.do_loop(&sorted_vec, usize::MIN, usize::MAX);
+        let mut ignore_pos = HashSet::new();
 
-        number += first_battery.joltage;
-        number *= 10;
-
-        println!("Number so far {number}");
-        let (second_battery, second_idx) = self.do_loop(&sorted_vec, first_battery.position + 1, first_idx);
-
-        number + second_battery.joltage
+        return self.biggest_number(&sorted_vec, 12, &mut ignore_pos, 0, 0);
     }
 
-    fn do_loop(&self, sorted: &[Battery], after_pos: usize, ignore_pos: usize) -> (Battery, usize) {
-        println!("What are going to: after --> {:?} ignore --> {:?}", after_pos, ignore_pos);
-        for (idx, b) in sorted.iter().enumerate() {
-            if b.position < after_pos || idx == ignore_pos {
-                println!("moving on from {:?}", b);
-                continue;
-            }
+    fn biggest_number(&self, 
+        batteries: &[Battery], 
+        length_of_num: usize, 
+        ignore_pos: &mut HashSet<usize>, 
+        mut number: i64, 
+        min_pos: usize) -> i64 {
 
-            if b.position == (sorted.len() - 1) && after_pos == 0 {
-                continue;
-            }
-            
-            return (b.clone(), idx);
+        if length_of_num == 0 {
+            return number/10;
         }
 
-        (Battery { joltage: -1, position: usize::MAX }, usize::MAX)
+
+        for (idx, battery) in batteries.iter().enumerate() {
+            if ignore_pos.contains(&idx) 
+                || battery.position + length_of_num > batteries.len()
+                || battery.position < min_pos {
+                continue;
+            }
+
+            ignore_pos.insert(idx);
+            number += battery.joltage;
+            number *= 10;
+
+            return self.biggest_number(batteries, length_of_num - 1, ignore_pos, number, battery.position);
+        }
+
+        return number;
     }
 }
 
@@ -58,8 +62,8 @@ fn read_lines(filename: &str) -> Vec<Bank> {
     let mut result = Vec::new();
 
     for line in fs::read_to_string(filename).unwrap().lines() {
-        let digits: Vec<i32> = line.chars()
-                        .map(|c| c.to_digit(10).unwrap() as i32)
+        let digits: Vec<i64> = line.chars()
+                        .map(|c| c.to_digit(10).unwrap() as i64)
                         .collect();
         
         let batteries: Vec<Battery> = digits
@@ -77,8 +81,9 @@ fn read_lines(filename: &str) -> Vec<Bank> {
     result
 }
 
-fn part1(input: &[Bank]) -> i32 {
-    let mut count: i32 = 0;
+fn main() -> i64 {
+    let input = read_lines("input.txt");
+    let mut count: i64 = 0;
 
     for bank in input.iter() { 
         let bestJoltage = bank.find_best_joltage();
@@ -89,16 +94,4 @@ fn part1(input: &[Bank]) -> i32 {
     }
 
     count
-}
-
-fn part2(input: &[Bank]) -> i32 {
-    // TODO: implement
-    0
-}
-
-fn main() -> Result<(), Box<dyn Error>> {
-    let input = read_lines("input.txt");
-    println!("Part 1: {}", part1(&input));
-    println!("Part 2: {}", part2(&input));
-    Ok(())
 }
