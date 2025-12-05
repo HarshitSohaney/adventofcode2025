@@ -1,10 +1,9 @@
 use std::fs;
-use std::error::Error;
 use std::collections::HashSet;
 
 trait FindBestJoltage {
     fn find_best_joltage(&self) -> i64;
-    fn biggest_number(&self, sorted_vec: &[Battery], length_of_num: usize, ignore_pos: &mut HashSet<usize>, number: i64, min_pos: usize) -> i64;
+    fn biggest_number(&self, sorted_vec: &[Battery], length_of_num: usize, ignore_pos: &mut HashSet<usize>, min_pos: usize) -> i64;
 }
 
 #[derive(Debug, Clone)]
@@ -25,18 +24,17 @@ impl FindBestJoltage for Bank {
         sorted_vec.sort_by_key(|b| -b.joltage);
         let mut ignore_pos = HashSet::new();
 
-        return self.biggest_number(&sorted_vec, 12, &mut ignore_pos, 0, 0);
+        return self.biggest_number(&sorted_vec, 12, &mut ignore_pos, 0);
     }
 
     fn biggest_number(&self, 
         batteries: &[Battery], 
         length_of_num: usize, 
-        ignore_pos: &mut HashSet<usize>, 
-        mut number: i64, 
-        min_pos: usize) -> i64 {
-
+        ignore_pos: &mut HashSet<usize>,  
+        min_pos: usize
+    ) -> i64 {
         if length_of_num == 0 {
-            return number/10;
+            return 0;
         }
 
 
@@ -48,13 +46,12 @@ impl FindBestJoltage for Bank {
             }
 
             ignore_pos.insert(idx);
-            number += battery.joltage;
-            number *= 10;
+            let tail = self.biggest_number(batteries, length_of_num - 1, ignore_pos, battery.position);
 
-            return self.biggest_number(batteries, length_of_num - 1, ignore_pos, number, battery.position);
+            return battery.joltage * 10_i64.pow((length_of_num - 1) as u32) + tail;
         }
 
-        return number;
+        0
     }
 }
 
@@ -86,8 +83,8 @@ fn main() {
     let mut count: i64 = 0;
 
     for bank in input.iter() { 
-        let bestJoltage = bank.find_best_joltage();
-        count += bestJoltage;
+        let best_joltage = bank.find_best_joltage();
+        count += best_joltage;
     }
 
     println!("{}", count);
