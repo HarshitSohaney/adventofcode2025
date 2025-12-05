@@ -81,17 +81,14 @@ fn read_lines(filename: &str) -> Vec<Bank> {
     result
 }
 
-fn main() -> i64 {
+fn main() {
     let input = read_lines("input.txt");
     let mut count: i64 = 0;
 
     for bank in input.iter() { 
         let bestJoltage = bank.find_best_joltage();
-        println!("THIS BANKS BEST JOLTAGE IS {:?}", bestJoltage);
         count += bestJoltage;
-
-        println!("Onto the next! \n");
     }
 
-    count
+    println!("{}", count);
 }
