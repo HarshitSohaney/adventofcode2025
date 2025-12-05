@@ -37,7 +37,6 @@ impl FindBestJoltage for Bank {
             return 0;
         }
 
-
         for (idx, battery) in batteries.iter().enumerate() {
             if ignore_pos.contains(&idx) 
                 || battery.position + length_of_num > batteries.len()
@@ -47,6 +46,7 @@ impl FindBestJoltage for Bank {
 
             ignore_pos.insert(idx);
             let tail = self.biggest_number(batteries, length_of_num - 1, ignore_pos, battery.position);
+            ignore_pos.remove(&idx);
 
             return battery.joltage * 10_i64.pow((length_of_num - 1) as u32) + tail;
         }
