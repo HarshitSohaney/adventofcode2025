@@ -51,7 +51,7 @@ fn is_valid(rolls_graph: &Vec<Vec<char>>, i: usize, j: usize) -> bool {
     true
 }
 
-fn find_good_rolls(rolls_graph: &mut Vec<Vec<char>>) -> i32 {
+fn find_bad_rolls(rolls_graph: &mut Vec<Vec<char>>) -> i32 {
     let mut count: i32 = 0;
     let mut to_mark = Vec::new();
 
@@ -65,13 +65,13 @@ fn find_good_rolls(rolls_graph: &mut Vec<Vec<char>>) -> i32 {
                 continue;
             }
 
-            count += 1;
             to_mark.push((i, j));
         }
     }
 
     for (i, j) in to_mark {
-        rolls_graph[i][j] = 'x';
+        rolls_graph[i][j] = '.';
+        count += 1;
     }
 
     count
@@ -85,9 +85,22 @@ fn main() {
         println!("{:?}", roll_line);
     }
 
-    println!("{:?}", find_good_rolls(&mut rolls));
+    let mut bad_rolls_left = true;
+    let mut count = 0;
 
-    // for roll_line in rolls.iter() {
-    //     println!("{:?}", roll_line);
-    // }
+    while true {
+        // keep going until find_bad_rolls is false
+        let remove_rolls: i32 = find_bad_rolls(&mut rolls);
+
+        count += remove_rolls;
+        if remove_rolls == 0 {
+            break;
+        }
+    }
+
+    for roll_line in rolls.iter() {
+        println!("{:?}", roll_line);
+    }
+
+    println!("{count}");
 }
