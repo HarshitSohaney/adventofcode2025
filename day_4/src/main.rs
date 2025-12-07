@@ -51,6 +51,10 @@ fn is_valid(rolls_graph: &Vec<Vec<char>>, i: usize, j: usize) -> bool {
     true
 }
 
+fn bfs(rolls_graph: &Vec<Vec<char>>) -> i32 {
+    let mut q: VecDeque<(i32, i32)
+}
+
 fn find_bad_rolls(rolls_graph: &mut Vec<Vec<char>>) -> i32 {
     let mut count: i32 = 0;
     let mut to_mark = Vec::new();
