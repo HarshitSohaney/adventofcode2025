@@ -1,4 +1,5 @@
 use std::fs;
+
 fn parse_input(file_contents: &str) -> Vec<Vec<&str>> {
     let mut hw = Vec::new();
 
@@ -9,6 +10,13 @@ fn parse_input(file_contents: &str) -> Vec<Vec<&str>> {
 
     hw
 }
+
+// fn clean_input(hw: &Vec<Vec<&str>>) -> Vec<Vec<&str>> {
+//     let mut new_hw = Vec::new();
+
+//     for idx in 0..hw[0].len() {
+//     }
+// }
 
 fn main() {
     let file_contents = fs::read_to_string("input.txt").unwrap();
