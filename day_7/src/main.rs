@@ -1,6 +1,7 @@
 use std::fs;
 use std::fmt;
 use colorized::*;
+use std::time::Instant;
 
 #[derive(Debug)]
 struct Node {
@@ -21,13 +22,13 @@ impl Graph {
             return 1;
         }
 
-        if self.nodes[curr_row][curr_col].count > 0 {
-            return self.nodes[curr_row][curr_col].count;
-        }
-
         if curr_col >= self.nodes[0].len() {
             // out of bounds
             return 0;
+        }
+
+        if self.nodes[curr_row][curr_col].count > 0 {
+            return self.nodes[curr_row][curr_col].count;
         }
 
         match self.nodes[curr_row][curr_col].value {
@@ -55,7 +56,9 @@ impl Graph {
                 //     self.count += 1;
                 // }
 
-                self.nodes[curr_row][curr_col].count += self.num_of_splits(curr_row, curr_col - 1);
+                if curr_col > 0 {
+                    self.nodes[curr_row][curr_col].count += self.num_of_splits(curr_row, curr_col - 1);
+                }
             },
             _ => {
                 // do nothing
@@ -101,7 +104,12 @@ fn make_graph_from_str(data: &str) -> Graph {
 fn main() {
     let file_contents = fs::read_to_string("input.txt").unwrap();
     let mut graph: Graph = make_graph_from_str(&file_contents);
+    let start = Instant::now();
 
     graph.num_of_splits(1, graph.nodes[0].len()/2);
     println!("{}", graph.nodes[2][graph.nodes[0].len()/2].count);
+
+    let elapsed = start.elapsed();
+
+    println!("Took: {:.2?}", elapsed);
 }

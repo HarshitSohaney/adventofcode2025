@@ -12,9 +12,14 @@ fn parse_input(file_contents: &str) -> Vec<Vec<&str>> {
 }
 
 // fn clean_input(hw: &Vec<Vec<&str>>) -> Vec<Vec<&str>> {
-//     let mut new_hw = Vec::new();
+//     let mut new_hw: Vec<Vec<&str>> = Vec::new();
 
-//     for idx in 0..hw[0].len() {
+//     for row in 0..hw[0].len() {
+//         let vec: Vec<&str> = Vec::new();
+
+//         for col in 0..hw.len()-1 {
+            
+//         }
 //     }
 // }
 
