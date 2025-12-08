@@ -6,13 +6,12 @@ use std::time::Instant;
 #[derive(Debug)]
 struct Node {
     value: char,
-    count: i64,
+    count: Option<i64>, // None = not computed, Some(x) = computed result
 }
 
 #[derive(Debug)]
 struct Graph {
     nodes: Vec<Vec<Node>>,
-    // count: i32,
 }
 
 impl Graph {
@@ -27,44 +26,40 @@ impl Graph {
             return 0;
         }
 
-        if self.nodes[curr_row][curr_col].count > 0 {
-            return self.nodes[curr_row][curr_col].count;
+        // Already calculated?? Let's return that count!!
+        if let Some(cached) = self.nodes[curr_row][curr_col].count {
+            /**
+             * Note: “If node.count is the Some variant, 
+             * take the inner value and bind it to the variable cached.”
+             */
+            return cached;
         }
 
-        match self.nodes[curr_row][curr_col].value {
+        let res = match self.nodes[curr_row][curr_col].value {
             '.' => {
-                // -- Part 1 --
-                // self.nodes[curr_row][curr_col].value = '|';
-                // self.num_of_splits(curr_row + 1, curr_col);
-                
-                // -- Part 2 -- 
-                self.nodes[curr_row][curr_col].count += self.num_of_splits(curr_row + 1, curr_col);
+                self.num_of_splits(curr_row + 1, curr_col)
             },
-            '|' => {
-                // do nothing, go no further
-            }, 
             '^' => {
-                // ---- Part 1 ----
-                // if (self.nodes[curr_row][curr_col-1].value != '|'){
-                //     self.count += 1;
-                // }
+                let mut total = 0;
 
-                self.nodes[curr_row][curr_col].count += self.num_of_splits(curr_row, curr_col + 1);
-                
-                // ---- Part 1 ----
-                // if (self.nodes[curr_row][curr_col+1].value != '|'){
-                //     self.count += 1;
-                // }
+                // right
+                total += self.num_of_splits(curr_row, curr_col + 1);
 
+                // left
                 if curr_col > 0 {
-                    self.nodes[curr_row][curr_col].count += self.num_of_splits(curr_row, curr_col - 1);
+                    total += self.num_of_splits(curr_row, curr_col - 1);
                 }
+
+                total
             },
             _ => {
                 // do nothing
+                0
             }
-        }
-        self.nodes[curr_row][curr_col].count
+        };
+
+        self.nodes[curr_row][curr_col].count = Some(res);
+        res
     }
 }
 
@@ -72,10 +67,15 @@ impl fmt::Display for Graph {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for row in &self.nodes {
             for node in row {
+                let count_str = match node.count {
+                    Some(c) => c.to_string(),
+                    None => "_".into(),
+                };
+
                 if node.value == '|' {
-                    write!(f, "{}({})  ", node.value.to_string().color(Colors::BrightGreenFg), node.count)?;
+                    write!(f, "{}({})  ", node.value.to_string().color(Colors::BrightGreenFg), count_str)?;
                 } else {
-                    write!(f, "{}({})  ", node.value, node.count)?;
+                    write!(f, "{}({})  ", node.value, count_str)?;
                 }
             }
             writeln!(f)?;
@@ -92,7 +92,7 @@ fn make_graph_from_str(data: &str) -> Graph {
                                     .chars()
                                     .enumerate()
                                     .map(|(j, c)| {
-                                        Node { value: c, count: 0 }
+                                        Node { value: c, count: None }
                                     })
                                     .collect();
         nodes.push(line_vec);
@@ -106,10 +106,9 @@ fn main() {
     let mut graph: Graph = make_graph_from_str(&file_contents);
     let start = Instant::now();
 
-    graph.num_of_splits(1, graph.nodes[0].len()/2);
-    println!("{}", graph.nodes[2][graph.nodes[0].len()/2].count);
+    let paths = graph.num_of_splits(1, graph.nodes[0].len() / 2);
+    println!("paths from start: {}", paths);
 
     let elapsed = start.elapsed();
-
     println!("Took: {:.2?}", elapsed);
 }
