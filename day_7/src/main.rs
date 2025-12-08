@@ -1,64 +1,67 @@
 use std::fs;
 use std::fmt;
+use colorized::*;
 
 #[derive(Debug)]
 struct Node {
     value: char,
-    row: usize,
-    col: usize
+    count: i64,
 }
 
 #[derive(Debug)]
 struct Graph {
     nodes: Vec<Vec<Node>>,
-    count: i32,
+    // count: i32,
 }
 
 impl Graph {
-    fn num_of_splits(&mut self, curr_row: usize, curr_col: usize) {
+    fn num_of_splits(&mut self, curr_row: usize, curr_col: usize) -> i64 {
         if curr_row >= self.nodes.len() {
             // we've reached the end, lets return with no splits
-            // println!("END \n{} {1}", self, self.count);
-            return;
+            return 1;
+        }
+
+        if self.nodes[curr_row][curr_col].count > 0 {
+            return self.nodes[curr_row][curr_col].count;
         }
 
         if curr_col >= self.nodes[0].len() {
             // out of bounds
-            return;
+            return 0;
         }
-
-        // println!("current node: {:?} --- count so far {1}", self.nodes[curr_row][curr_col], self.count);
 
         match self.nodes[curr_row][curr_col].value {
             '.' => {
-                self.nodes[curr_row][curr_col].value = '|';
-
-                // if (self.nodes[curr_row - 1][curr_col].value != '|') {
-                //     self.count += 1;
-                // }
-
-                self.num_of_splits(curr_row + 1, curr_col);
-                // println!("RETURNING, NOW COUNT IS {} at {curr_row}-{curr_col}", self.count);
+                // -- Part 1 --
+                // self.nodes[curr_row][curr_col].value = '|';
+                // self.num_of_splits(curr_row + 1, curr_col);
+                
+                // -- Part 2 -- 
+                self.nodes[curr_row][curr_col].count += self.num_of_splits(curr_row + 1, curr_col);
             },
             '|' => {
                 // do nothing, go no further
             }, 
             '^' => {
-                if (self.nodes[curr_row][curr_col-1].value != '|'){
-                    self.count += 1;
-                }
+                // ---- Part 1 ----
+                // if (self.nodes[curr_row][curr_col-1].value != '|'){
+                //     self.count += 1;
+                // }
 
-                self.num_of_splits(curr_row, curr_col + 1);
+                self.nodes[curr_row][curr_col].count += self.num_of_splits(curr_row, curr_col + 1);
+                
+                // ---- Part 1 ----
+                // if (self.nodes[curr_row][curr_col+1].value != '|'){
+                //     self.count += 1;
+                // }
 
-                if (self.nodes[curr_row][curr_col+1].value != '|'){
-                    self.count += 1;
-                }
-                self.num_of_splits(curr_row, curr_col - 1);
+                self.nodes[curr_row][curr_col].count += self.num_of_splits(curr_row, curr_col - 1);
             },
             _ => {
                 // do nothing
             }
         }
+        self.nodes[curr_row][curr_col].count
     }
 }
 
@@ -66,7 +69,11 @@ impl fmt::Display for Graph {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for row in &self.nodes {
             for node in row {
-                write!(f, "{}", node.value)?;
+                if node.value == '|' {
+                    write!(f, "{}({})  ", node.value.to_string().color(Colors::BrightGreenFg), node.count)?;
+                } else {
+                    write!(f, "{}({})  ", node.value, node.count)?;
+                }
             }
             writeln!(f)?;
         }
@@ -82,20 +89,19 @@ fn make_graph_from_str(data: &str) -> Graph {
                                     .chars()
                                     .enumerate()
                                     .map(|(j, c)| {
-                                        Node { value: c, row: i, col: j }
+                                        Node { value: c, count: 0 }
                                     })
                                     .collect();
         nodes.push(line_vec);
     }
 
-    Graph { nodes, count: 0 }
+    Graph { nodes }
 }
 
 fn main() {
     let file_contents = fs::read_to_string("input.txt").unwrap();
     let mut graph: Graph = make_graph_from_str(&file_contents);
 
-    // println!("{:?}", graph);
     graph.num_of_splits(1, graph.nodes[0].len()/2);
-    println!("{}", graph.count);
+    println!("{}", graph.nodes[2][graph.nodes[0].len()/2].count);
 }
