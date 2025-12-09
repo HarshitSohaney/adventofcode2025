@@ -104,17 +104,20 @@ fn merge_sets(circuits: &mut Vec<HashSet<usize>>, boxes: &mut [JunctionBox], a: 
 }
 
 fn main() {
-    let file_contents = fs::read_to_string("input.txt").unwrap();
+    let file_contents = fs::read_to_string("inputx.txt").unwrap();
     let mut boxes: Vec<JunctionBox> = create_boxes(&file_contents);
     let mut heap: BinaryHeap<BoxPair> = find_distances(&boxes);
+    let mut added_boxes: HashSet<usize> = HashSet::new();
 
     let mut num_edges = 0;
     let mut circuits: Vec<HashSet<usize>> = Vec::new();
+    let mut i = 0;
+    let mut j = 0;
 
-    while num_edges < 1000 && !heap.is_empty() {
+    while heap.len() > 1 && added_boxes.len() < boxes.len() {
         let smallest_pair: BoxPair = heap.pop().unwrap();
-        let i = smallest_pair.i;
-        let j = smallest_pair.j;
+        i = smallest_pair.i;
+        j = smallest_pair.j;
 
         let ci = boxes[i].connected_to;
         let cj = boxes[j].connected_to;
@@ -133,34 +136,38 @@ fn main() {
 
                 boxes[i].connected_to = Some(circuit_idx);
                 boxes[j].connected_to = Some(circuit_idx);
+
+                added_boxes.insert(i);
+                added_boxes.insert(j);
             }
             (Some(ci_idx), None) => {
                 // j joins i's circuit.
                 circuits[ci_idx].insert(j);
                 boxes[j].connected_to = Some(ci_idx);
+                added_boxes.insert(j);
             }
             (None, Some(cj_idx)) => {
                 // i joins j's circuit.
                 circuits[cj_idx].insert(i);
                 boxes[i].connected_to = Some(cj_idx);
+                added_boxes.insert(i);
             }
             (Some(_ci_idx), Some(_cj_idx)) => {
                 // Both already in some circuit
                 merge_sets(&mut circuits, &mut boxes, _ci_idx, _cj_idx);
             }
         }
-
         num_edges += 1;
     }
-
+    println!("{}", boxes[i].coordinates.x * boxes[j].coordinates.x);
     let mut circuits_vec: Vec<&HashSet<usize>> = circuits.iter().filter(|set| !set.is_empty()).collect();
     circuits_vec.sort_by_key(|set| std::cmp::Reverse(set.len()));
 
     let mut res = 1;
 
-    for i in 0..3 {
-        res *= circuits_vec[i].len();
-    }
+    // for i in 0..3 {
+    //     res *= circuits_vec[i].len();
+    // }
 
-    println!("{res}");
+    // println!("{res}");
 }
