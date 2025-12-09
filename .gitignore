@@ -1,3 +1,7 @@
 target/
 **/target
 **input.txt
+
+# Added by cargo
+
+/target

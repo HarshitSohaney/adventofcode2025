@@ -24,7 +24,7 @@ fn parse_input(file_contents: &str) -> Vec<Vec<&str>> {
 // }
 
 fn main() {
-    let file_contents = fs::read_to_string("input.txt").unwrap();
+    let file_contents = fs::read_to_string("day_6/input.txt").unwrap();
     let hw = parse_input(&file_contents);
 
     println!("{:?}", hw);

@@ -104,12 +104,11 @@ fn merge_sets(circuits: &mut Vec<HashSet<usize>>, boxes: &mut [JunctionBox], a: 
 }
 
 fn main() {
-    let file_contents = fs::read_to_string("inputx.txt").unwrap();
+    let file_contents = fs::read_to_string("day_8/example.txt").unwrap();
     let mut boxes: Vec<JunctionBox> = create_boxes(&file_contents);
     let mut heap: BinaryHeap<BoxPair> = find_distances(&boxes);
     let mut added_boxes: HashSet<usize> = HashSet::new();
 
-    let mut num_edges = 0;
     let mut circuits: Vec<HashSet<usize>> = Vec::new();
     let mut i = 0;
     let mut j = 0;
@@ -121,8 +120,6 @@ fn main() {
 
         let ci = boxes[i].connected_to;
         let cj = boxes[j].connected_to;
-
-        let set: HashSet<JunctionBox> = HashSet::new();
 
         match (ci, cj) {
             (None, None) => {
@@ -157,7 +154,6 @@ fn main() {
                 merge_sets(&mut circuits, &mut boxes, _ci_idx, _cj_idx);
             }
         }
-        num_edges += 1;
     }
     println!("{}", boxes[i].coordinates.x * boxes[j].coordinates.x);
     let mut circuits_vec: Vec<&HashSet<usize>> = circuits.iter().filter(|set| !set.is_empty()).collect();

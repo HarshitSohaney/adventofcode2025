@@ -79,7 +79,7 @@ fn read_lines(filename: &str) -> Vec<Bank> {
 }
 
 fn main() {
-    let input = read_lines("input.txt");
+    let input = read_lines("day_3/input.txt");
     let mut count: i64 = 0;
 
     for bank in input.iter() { 

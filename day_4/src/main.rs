@@ -78,7 +78,7 @@ fn find_bad_rolls(rolls_graph: &mut Vec<Vec<char>>) -> i32 {
 }
 
 fn main() {
-    let file_contents = fs::read_to_string("input.txt").unwrap();
+    let file_contents = fs::read_to_string("day_4/input.txt").unwrap();
     let mut rolls = make_graph(&file_contents);
 
     for roll_line in rolls.iter() {

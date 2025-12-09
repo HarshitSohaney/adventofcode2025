@@ -102,7 +102,7 @@ fn make_graph_from_str(data: &str) -> Graph {
 }
 
 fn main() {
-    let file_contents = fs::read_to_string("input.txt").unwrap();
+    let file_contents = fs::read_to_string("day_7/example.txt").unwrap();
     let mut graph: Graph = make_graph_from_str(&file_contents);
     let start = Instant::now();
 

@@ -37,7 +37,7 @@ fn merge_ranges(ranges: &Vec<(i64, i64)>) -> i64 {
 }
 
 fn main() {
-    let file_contents = fs::read_to_string("input.txt").unwrap();
+    let file_contents = fs::read_to_string("day_5/input.txt").unwrap();
     let mut ranges: Vec<(i64, i64)> = Vec::new();
     let mut idx: usize = 0;
     for line in file_contents.lines() {
