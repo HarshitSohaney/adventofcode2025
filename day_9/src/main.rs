@@ -254,6 +254,102 @@ fn rect_inside_polygon(a0: Coord, c0: Coord, poly: &[Coord]) -> bool {
         && edge_inside_polygon(d, a, poly)
 }
 
+/// BRUTE FORCE FUNCTIONS
+fn is_valid_rect(
+    tile_set: &HashSet<Coord>,
+    _red_tile_coords: &[Coord],
+    coord1: &Coord,
+    coord2: &Coord,
+) -> bool {
+    // If our hashes are in the same line, this is a valid rect
+    if coord1.0 == coord2.0 || coord1.1 == coord2.1 {
+        return true;
+    }
+
+    // Get the two other corners of this rect
+    let max_x = max(coord1.0, coord2.0);
+    let min_x = min(coord1.0, coord2.0);
+    let max_y = max(coord1.1, coord2.1);
+    let min_y = min(coord1.1, coord2.1);
+
+    let c3 = (min_x, max_y);
+    let c4 = (max_x, min_y);
+
+    // For a valid rectangle, all 4 corners must exist in tile_set.
+    tile_set.contains(coord1)
+        && tile_set.contains(coord2)
+        && tile_set.contains(&c3)
+        && tile_set.contains(&c4)
+}
+
+fn create_boundary(red_tiles: &[Coord]) -> HashSet<Coord> {
+    let mut tile_set: HashSet<Coord> = HashSet::from_iter(red_tiles.iter().cloned());
+
+    for (i, &curr) in red_tiles.iter().enumerate() {
+        let next = if i == red_tiles.len() - 1 {
+            red_tiles[0]
+        } else {
+            red_tiles[i + 1]
+        };
+
+        let dx = next.0 - curr.0;
+        let dy = next.1 - curr.1;
+
+        for x_off in 0..=dx.abs() {
+            for y_off in 0..=dy.abs() {
+                let mut new_x = x_off;
+                let mut new_y = y_off;
+
+                if dx < 0 {
+                    new_x = -new_x;
+                }
+                if dy < 0 {
+                    new_y = -new_y;
+                }
+
+                tile_set.insert((curr.0 + new_x, curr.1 + new_y));
+            }
+        }
+    }
+
+    tile_set
+}
+
+fn fill_island(tile_set: &mut HashSet<Coord>, red_tile_coords: &[Coord]) {
+    if tile_set.is_empty() {
+        return;
+    }
+
+    let (_, max_x, _, max_y) = get_bounds(tile_set);
+
+    let copy_set = tile_set.clone();
+    let mut new_set_of_items: HashSet<Coord> = HashSet::new();
+
+    for &(x, y) in copy_set.iter() {
+        let mut there_is_a_bottom = false;
+
+        // Check if there's any tile to the right on this row (y)
+        for j in x..=max_x {
+            if tile_set.contains(&(j, y)) {
+                there_is_a_bottom = true;
+                break;
+            }
+        }
+
+        if !there_is_a_bottom {
+            continue;
+        }
+
+        // Fill from (x,y) horizontally to max_x on this row
+        for j in x..=max_x {
+            new_set_of_items.insert((j, y));
+        }
+    }
+
+    tile_set.extend(new_set_of_items);
+    visualize_tiles(tile_set, red_tile_coords);
+}
+
 fn main() {
     let file_contents = fs::read_to_string("day_9/example.txt").expect("Failed to read input");
     let mut red_tiles: Vec<Coord> = Vec::new();
@@ -271,7 +367,7 @@ fn main() {
     // let best_area = part1(&red_tiles);
     let best_area_with_green = part2(&red_tiles);
 
-    //visualize_tiles(&red_tiles);
+    // visualize_tiles(&red_tiles);
     // println!("{best_area}");
     println!("{best_area_with_green}");
 }
