@@ -1,4 +1,4 @@
-# 📘 Linear Programming (ILP) Reference – Joltage Button Solver
+# Linear Programming (ILP) Reference – Joltage Button Solver
 
 This document explains:
 
@@ -24,26 +24,25 @@ A **Linear Program (LP)** is an optimization problem where:
 General LP form:
 
 - **Variables:**
-
-  \[
-  x_1, x_2, \dots, x_n \in \mathbb{R}
-  \]
+```math
+x_1, x_2, \dots, x_n \in \mathbb{R}
+```
 
 - **Objective (minimize / maximize):**
 
-  \[
+```math
   \min / \max \; c_1 x_1 + c_2 x_2 + \dots + c_n x_n
-  \]
+```
 
 - **Constraints (linear):**
 
-  \[
+```math
   a_{1} x_1 + a_{2} x_2 + \dots + a_{n} x_n \le / = / \ge b
-  \]
+```
 
 If you additionally require **integer variables**:
 
-- \(x_i \in \mathbb{Z}\) (usually \(\mathbb{Z}_{\ge 0}\))
+\(x_i \in \mathbb{Z}\) (usually \(\mathbb{Z}_{\ge 0}\))
 
 then it becomes an **Integer Linear Program (ILP)**.
 
@@ -82,8 +81,6 @@ For this puzzle:
 - Constraints = final counter values must equal target joltages  
 - Objective = minimize total presses (sum of variables, linear)
 
-✅ This is a textbook ILP.
-
 ---
 
 ## 3. Mapping the Joltage Problem to ILP
@@ -114,28 +111,28 @@ x_j \ge 0, \quad x_j \in \mathbb{Z}
 
 Define a matrix \(A\) where:
 
-\[
+```math
 A[i][j] =
 \begin{cases}
 1 & \text{if button } j \text{ affects counter } i \\
 0 & \text{otherwise}
 \end{cases}
-\]
+```
 
 Let `t[i]` be the target joltage for counter `i`.  
 Then the constraint for each counter `i` is:
 
-\[
+```math
 \sum_{j=0}^{m-1} A[i][j] \, x_j = t[i] \quad \text{for all } i = 0, 1, \dots, n-1
-\]
+```
 
 ### Objective
 
 We want the **fewest total button presses**:
 
-\[
+```math
 \min \sum_{j=0}^{m-1} x_j
-\]
+```
 
 Putting it together:
 
